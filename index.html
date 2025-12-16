@@ -716,13 +716,42 @@ function loadDataFromSheet() {
                         
                         let timeText = 'Recentemente';
                         if (data) {
-                            const donationDate = new Date(data);
-                            const now = new Date();
-                            const diffTime = now - donationDate;
-                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-                            const diffMinutes = Math.floor(diffTime / (1000 * 60));
-                            
+let donationDate;
+
+// tenta formato ISO ou timestamp
+donationDate = new Date(data);
+
+// se for inválido (ex: 15/12/2025 18:30)
+if (isNaN(donationDate.getTime())) {
+    const parts = data.split(' ');
+    const dateParts = parts[0].split('/'); // dd/mm/yyyy
+    const timeParts = (parts[1] || '00:00').split(':');
+
+    donationDate = new Date(
+        dateParts[2],           // ano
+        dateParts[1] - 1,       // mês (0-based)
+        dateParts[0],           // dia
+        timeParts[0],           // hora
+        timeParts[1] || 0       // minuto
+    );
+}
+
+const now = new Date();
+const diffTime = now - donationDate;
+
+if (diffTime >= 0) {
+    const diffMinutes = Math.floor(diffTime / (1000 * 60));
+    const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 1) timeText = 'Agora mesmo';
+    else if (diffMinutes < 60) timeText = `Há ${diffMinutes} min`;
+    else if (diffHours < 24) timeText = `Há ${diffHours} horas`;
+    else if (diffDays === 1) timeText = 'Há 1 dia';
+    else timeText = `Há ${diffDays} dias`;
+} else {
+    timeText = 'Recentemente';
+}                           
                             if (diffMinutes < 1) timeText = 'Agora mesmo';
                             else if (diffMinutes < 60) timeText = `Há ${diffMinutes} min`;
                             else if (diffHours < 24) timeText = `Há ${diffHours} horas`;
@@ -853,6 +882,7 @@ setInterval(loadDataFromSheet, 30000);
 
 </body>
 </html>
+
 
 
 
