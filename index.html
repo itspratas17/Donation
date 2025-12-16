@@ -679,6 +679,7 @@ footer {
 <script>
 const GOAL = 1000;
 const PAYPAL_EMAIL = 'matiaspratas18@gmail.com';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTAdy0gTnG1SLoV6TQ3cwvm3wkX1hULhqfY7WEZsxQp8pVTJRKh2ceQv-QuUWiWbM_H0kkqhgVBrl5t/pub?output=csv';
 
 let totalDonated = 0;
 let donorCount = 0;
@@ -692,6 +693,64 @@ const donorCountEl = document.getElementById('donorCount');
 const donorList = document.getElementById('donorList');
 const notification = document.getElementById('notification');
 const customAmountInput = document.getElementById('customAmount');
+
+function loadDataFromSheet() {
+    fetch(SHEET_URL)
+        .then(response => response.text())
+        .then(csvData => {
+            const rows = csvData.split('\n').slice(1);
+            recentDonors = [];
+            totalDonated = 0;
+            donorCount = 0;
+            
+            rows.forEach(row => {
+                if (row.trim()) {
+                    const cols = row.split(',');
+                    const nome = cols[0]?.trim() || 'Doador Anónimo';
+                    const valor = parseFloat(cols[1]?.trim()) || 0;
+                    const data = cols[2]?.trim() || '';
+                    
+                    if (valor > 0) {
+                        totalDonated += valor;
+                        donorCount++;
+                        
+                        let timeText = 'Recentemente';
+                        if (data) {
+                            const donationDate = new Date(data);
+                            const now = new Date();
+                            const diffTime = now - donationDate;
+                            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+                            const diffMinutes = Math.floor(diffTime / (1000 * 60));
+                            
+                            if (diffMinutes < 1) timeText = 'Agora mesmo';
+                            else if (diffMinutes < 60) timeText = `Há ${diffMinutes} min`;
+                            else if (diffHours < 24) timeText = `Há ${diffHours} horas`;
+                            else if (diffDays === 1) timeText = 'Há 1 dia';
+                            else timeText = `Há ${diffDays} dias`;
+                        }
+                        
+                        recentDonors.push({
+                            name: nome,
+                            amount: valor,
+                            time: timeText
+                        });
+                    }
+                }
+            });
+            
+            recentDonors.reverse();
+            if (recentDonors.length > 10) {
+                recentDonors = recentDonors.slice(0, 10);
+            }
+            
+            updateUI();
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados:', error);
+            donorList.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">Erro ao carregar doações. Tenta recarregar a página.</div>';
+        });
+}
 
 function createSnow() {
     const snowContainer = document.getElementById('snow');
@@ -718,20 +777,12 @@ function createSnow() {
 }
 
 function makeDonation(amount) {
-    localStorage.setItem('pendingDonation', JSON.stringify({
-        amount: amount,
-        timestamp: Date.now()
-    }));
     redirectToPayPal(amount);
 }
 
 function makeCustomDonation() {
     const amount = parseFloat(customAmountInput.value);
     if (amount && amount > 0) {
-        localStorage.setItem('pendingDonation', JSON.stringify({
-            amount: amount,
-            timestamp: Date.now()
-        }));
         redirectToPayPal(amount);
         customAmountInput.value = '';
     } else {
@@ -747,85 +798,6 @@ function redirectToPayPal(amount) {
     }, 1000);
 }
 
-function checkPendingDonation() {
-    const pending = localStorage.getItem('pendingDonation');
-    if (pending) {
-        const donation = JSON.parse(pending);
-        const timeDiff = Date.now() - donation.timestamp;
-        
-        if (timeDiff < 600000) {
-            setTimeout(() => {
-                const confirmed = confirm(`🎁 Completou o seu donativo de €${donation.amount.toFixed(2)}?\n\nClique OK se finalizou o pagamento no PayPal.`);
-                if (confirmed) {
-                    processDonation(donation.amount);
-                    localStorage.removeItem('pendingDonation');
-                }
-            }, 1000);
-        } else {
-            localStorage.removeItem('pendingDonation');
-        }
-    }
-}
-
-function processDonation(amount) {
-    totalDonated += amount;
-    donorCount++;
-    
-    // Não limita a meta - continua acumulando
-    const isGoalReached = totalDonated >= GOAL && (totalDonated - amount) < GOAL;
-    
-    const donor = {
-        name: 'Doador Generoso',
-        amount: amount,
-        time: 'Agora mesmo',
-        timestamp: Date.now()
-    };
-    
-    recentDonors.unshift(donor);
-    if (recentDonors.length > 10) {
-        recentDonors.pop();
-    }
-    
-    saveData();
-    updateUI();
-    showNotification(`🎉 Donativo de €${amount.toFixed(2)} confirmado! Obrigado! 🎄`);
-    
-    // Só celebra na primeira vez que atinge a meta
-    if (isGoalReached) {
-        setTimeout(() => {
-            showNotification('🎉🎄 META ATINGIDA! FELIZ NATAL! 🎅⭐');
-        }, 1500);
-    }
-}
-
-function saveData() {
-    localStorage.setItem('christmasDonations', JSON.stringify({
-        totalDonated,
-        donorCount,
-        recentDonors
-    }));
-}
-
-function loadData() {
-    const saved = localStorage.getItem('christmasDonations');
-    if (saved) {
-        const data = JSON.parse(saved);
-        totalDonated = data.totalDonated || 0;
-        donorCount = data.donorCount || 0;
-        recentDonors = data.recentDonors || [];
-        
-        recentDonors.forEach(donor => {
-            if (donor.timestamp) {
-                const seconds = Math.floor((Date.now() - donor.timestamp) / 1000);
-                if (seconds < 60) donor.time = 'Agora mesmo';
-                else if (seconds < 3600) donor.time = `Há ${Math.floor(seconds / 60)} min`;
-                else if (seconds < 86400) donor.time = `Há ${Math.floor(seconds / 3600)} horas`;
-                else donor.time = `Há ${Math.floor(seconds / 86400)} dias`;
-            }
-        });
-    }
-}
-
 function updateUI() {
     const percentage = Math.min((totalDonated / GOAL) * 100, 100);
     
@@ -835,7 +807,6 @@ function updateUI() {
     currentAmount.textContent = '€' + totalDonated.toFixed(2);
     donorCountEl.textContent = donorCount;
     
-    // Se ultrapassou a meta, mostra isso
     if (totalDonated > GOAL) {
         progressPercentage.textContent = '100% + €' + (totalDonated - GOAL).toFixed(2);
     }
@@ -874,10 +845,10 @@ customAmountInput.addEventListener('keypress', (e) => {
     }
 });
 
-loadData();
+loadDataFromSheet();
 createSnow();
-updateUI();
-checkPendingDonation();
+
+setInterval(loadDataFromSheet, 30000);
 </script>
 
 </body>
