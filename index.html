@@ -2,236 +2,239 @@
 <html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <title>ItsPratas | Hyperspace Elite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/jpeg" href="favicon.jpg">
-  <style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ItsPratas | Portal Galáctico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://www.paypal.com/sdk/js?client-id=BAA2qKUPbzEE6HzCxSTyn5i9IolvEQSa5ZD4EtoNnB_Zxyex0dqkfUjBr6wWgaWnqhee4NsHoAMLKrUP5o&components=hosted-buttons&disable-funding=venmo&currency=EUR"></script>
+
+    <style>
         :root {
-            --accent: #9146FF;
-            --accent-bright: #bc92ff;
+            --primary: #9146FF;
             --gold: #FFD700;
-            --deep-space: #05050a;
+            --glass: rgba(10, 10, 15, 0.9);
+            --border: rgba(255, 255, 255, 0.1);
+            --discord: #5865F2;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
 
         body {
-            margin: 0;
-            padding: 30px;
-            background: transparent;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow: hidden;
-        }
-
-        /* --- CARD DE ELITE --- */
-        .elite-card {
-            width: 520px;
-            height: 160px;
-            background: rgba(5, 5, 10, 0.95);
-            border-radius: 24px;
-            position: relative;
-            padding: 25px 35px;
-            border: 1px solid rgba(145, 70, 255, 0.4);
-            box-shadow: 0 0 50px rgba(0,0,0,0.9), inset 0 0 20px rgba(145, 70, 255, 0.1);
-            overflow: hidden;
+            background: #020205;
+            color: white;
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
         }
 
-        /* --- ESPAÇO ACELERADO --- */
+        /* Fundo Estelar */
         .stars {
-            position: absolute;
-            top: 0; left: 0; width: 200%; height: 100%;
-            background: 
-                radial-gradient(1px 1px at 10% 10%, #fff, transparent),
-                radial-gradient(2px 2px at 50% 50%, #fff, transparent),
-                radial-gradient(1px 1px at 90% 80%, #fff, transparent);
-            background-size: 250px 250px;
-            opacity: 0.6;
-            animation: warpSpeed 8s linear infinite; /* Mais rápido */
+            position: fixed; top: 0; left: 0; width: 200%; height: 200%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            animation: moveStars 120s linear infinite;
+            z-index: -1; opacity: 0.4;
+        }
+        @keyframes moveStars { from { transform: translate(0, 0); } to { transform: translate(-25%, -25%); } }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
+            z-index: 10;
         }
 
-        @keyframes warpSpeed {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
+        .container.community-mode { grid-template-columns: 1fr; max-width: 500px; }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* --- PLANETAS REALISTAS --- */
-        .planet {
-            position: absolute;
-            border-radius: 50%;
-            z-index: 2;
-            animation: planetPass 12s linear infinite; /* Mais rápido */
+        .tabs {
+            display: flex; background: rgba(0,0,0,0.4);
+            border-radius: 14px; margin-bottom: 25px; padding: 5px;
         }
 
-        .purple-giant {
-            width: 120px; height: 120px;
-            background: radial-gradient(circle at 30% 30%, var(--accent) 0%, #1a0b4d 60%, #000 100%);
-            box-shadow: inset -10px -10px 40px rgba(0,0,0,0.9), 0 0 30px rgba(145, 70, 255, 0.2);
-            top: -20px; left: -150px;
-            animation-delay: 1s;
+        .tab-btn {
+            flex: 1; padding: 12px; border: none; background: transparent;
+            color: rgba(255,255,255,0.5); font-weight: 700; cursor: pointer;
+            border-radius: 10px; transition: 0.3s; text-transform: uppercase; font-size: 0.7rem;
         }
 
-        .ice-world {
-            width: 40px; height: 40px;
-            background: radial-gradient(circle at 30% 30%, #00d4ff 0%, #0b3d4d 70%, #000 100%);
-            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.8);
-            bottom: 10px; left: -100px;
-            animation-delay: 6s;
+        .tab-btn.active { background: var(--primary); color: white; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar {
+            width: 120px; height: 120px; border-radius: 35px;
+            border: 3px solid var(--primary); margin-bottom: 15px; object-fit: cover;
         }
 
-        @keyframes planetPass {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(800px); }
+        .goal-current { font-size: 2.8rem; font-weight: 800; color: var(--gold); }
+
+        .progress-bar-bg {
+            height: 12px; background: rgba(255,255,255,0.05);
+            border-radius: 10px; margin: 15px 0; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--primary), #00d4ff);
+            transition: width 1s ease;
         }
 
-        /* --- TIPOGRAFIA DE LUXO --- */
-        .content { position: relative; z-index: 10; }
-
-        .top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 10px;
+        .donor-row {
+            display: flex; justify-content: space-between; padding: 12px;
+            background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px;
         }
 
-        .title-group {
-            border-left: 3px solid var(--accent);
-            padding-left: 15px;
+        .btn-action {
+            width: 100%; background: var(--primary); color: white; border: none;
+            padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer;
         }
 
-        .label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: var(--accent-bright);
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            margin-bottom: 2px;
-            opacity: 0.8;
+        /* Admin/Confirm Popups */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center;
+            align-items: center; z-index: 1000; backdrop-filter: blur(10px);
         }
-
-        .amount {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #fff;
-            margin: 0;
-            line-height: 0.9;
-            letter-spacing: -2px;
-            /* Efeito de brilho no texto */
-            text-shadow: 0 0 20px rgba(255,255,255,0.2), 0 10px 10px rgba(0,0,0,0.5);
+        .modern-input {
+            width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px;
+            border: 1px solid var(--border); background: #000; color: #fff;
         }
-
-        .percent-wrap {
-            text-align: right;
-        }
-
-        .percent-num {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: var(--gold);
-            display: block;
-            line-height: 1;
-            text-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
-        }
-
-        .percent-sub {
-            font-size: 0.6rem;
-            font-weight: 700;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-        }
-
-        /* --- BARRA DE PROGRESSO SLIM --- */
-        .progress-area { margin-top: 15px; }
-
-        .track {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #772CE8, var(--accent), #00d4ff);
-            box-shadow: 0 0 20px var(--accent);
-            transition: width 2s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-
-        /* Efeito de brilho a passar na barra */
-        .fill::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 40px; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-            animation: shineBar 2s infinite;
-        }
-
-        @keyframes shineBar {
-            0% { left: -40px; }
-            100% { left: 100%; }
-        }
-
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: rgba(255,255,255,0.3);
-            letter-spacing: 1px;
-        }
-
-        .meta-val { color: #fff; font-weight: 800; }
     </style>
 </head>
 <body>
 
-<div class="elite-card">
-    <div class="stars"></div>
-    <div class="planet purple-giant"></div>
-    <div class="planet ice-world"></div>
-    
-    <div class="content">
-        <div class="top-row">
-            <div class="title-group">
-                <div class="label">Comandante ItsPratas</div>
-                <h1 class="amount" id="totalStatus">0,00 €</h1>
-            </div>
-            <div class="percent-wrap">
-                <span class="percent-num" id="percVal">0%</span>
-                <span class="percent-sub">Progressão</span>
+<div class="stars"></div>
+
+<div class="container" id="mainContainer">
+    <div class="glass-panel" style="text-align: center;">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('apoio', this)">Apoio</button>
+            <button class="tab-btn" onclick="openTab('comunidade', this)">Comunidade</button>
+        </div>
+
+        <div id="apoio" class="tab-content active">
+            <img src="https://cdn.discordapp.com/attachments/1340420983827333241/1455624901305303222/file_000000005a7471f4b76513b711f75a85.png" class="avatar">
+            <h2>ItsPratas</h2>
+            <p style="opacity: 0.5; font-size: 0.8rem; margin-bottom: 20px;">Fortalece a nossa jornada.</p>
+            <div id="paypal-container-LB9MWNTELJU3A"></div>
+        </div>
+
+        <div id="comunidade" class="tab-content">
+            <img src="https://cdn.discordapp.com/attachments/1443353710280446168/1455370026432331838/447a4cfe-511e-4020-9f8b-8c62a6159152.png" class="avatar">
+            <h2 style="color: var(--discord);">RUA 45</h2>
+            <p style="font-size: 0.85rem; margin: 15px 0; opacity: 0.7;">Junta-te à nossa família no Discord!</p>
+            <button class="btn-action" style="background: var(--discord);" onclick="window.open('https://discord.gg/uVqDNsxv3w')">Entrar</button>
+        </div>
+    </div>
+
+    <div id="statsColumn" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="glass-panel">
+            <span style="font-size: 0.7rem; font-weight: 800; color: var(--primary);">ARRECADADO</span>
+            <div class="goal-current" id="totalStatus">0,00 €</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="barFill"></div></div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; opacity: 0.5;">
+                <span>META: <span id="displayGoal">100</span>€</span>
+                <span id="percVal">0%</span>
             </div>
         </div>
 
-        <div class="progress-area">
-            <div class="track">
-                <div class="fill" id="barFill"></div>
-            </div>
-            <div class="footer">
-                <span>ESTADO: NAVEGAÇÃO ESPACIAL</span>
-                <span>META: <span class="meta-val" id="displayGoal">100</span>€</span>
-            </div>
+        <div class="glass-panel" style="flex: 1;">
+            <h3 style="font-size: 0.8rem; margin-bottom: 15px; color: var(--gold);">ÚLTIMOS APOIOS</h3>
+            <div id="list"></div>
         </div>
     </div>
 </div>
 
+<div id="confirm-overlay" class="modal">
+    <div class="glass-panel" style="width: 350px;">
+        <h3 style="margin-bottom:15px">Validar Apoio</h3>
+        <input type="text" id="donorName" class="modern-input" placeholder="Teu Nome">
+        <input type="number" id="donorValue" class="modern-input" placeholder="Valor (€)">
+        <input type="password" id="donorPin" class="modern-input" placeholder="PIN Admin">
+        <button class="btn-action" onclick="addDonor()">Confirmar no Mural</button>
+        <p onclick="this.parentElement.parentElement.style.display='none'" style="cursor:pointer; font-size:0.7rem; margin-top:10px; opacity:0.5">Cancelar</p>
+    </div>
+</div>
+
 <script>
-    function update() {
-        const val = parseFloat(localStorage.getItem('total')) || 0;
-        const goal = parseFloat(localStorage.getItem('goal')) || 100;
-        const p = Math.min((val / goal) * 100, 100);
+    // Inicialização de Dados
+    let currentAmount = parseFloat(localStorage.getItem('total')) || 0;
+    let goal = parseFloat(localStorage.getItem('goal')) || 100;
+    let donors = JSON.parse(localStorage.getItem('donors')) || [];
+    let securePin = localStorage.getItem('securePin') || "1234";
 
-        document.getElementById('barFill').style.width = p + '%';
-        document.getElementById('percVal').innerText = Math.floor(p) + '%';
-        document.getElementById('totalStatus').innerText = val.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+    function updateUI() {
+        const perc = Math.min((currentAmount / goal) * 100, 100);
+        document.getElementById('barFill').style.width = perc + '%';
+        document.getElementById('percVal').innerText = Math.floor(perc) + '%';
+        document.getElementById('totalStatus').innerText = currentAmount.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
         document.getElementById('displayGoal').innerText = goal;
+        
+        document.getElementById('list').innerHTML = donors.slice(0, 5).map(d => `
+            <div class="donor-row">
+                <span><b>${d.name}</b></span>
+                <span style="color:var(--gold)">${d.amount.toFixed(2)}€</span>
+            </div>
+        `).join('') || "Ainda sem apoios.";
     }
-    setInterval(update, 1000);
-    window.onload = update;
-</script>
 
+    function addDonor() {
+        const name = document.getElementById('donorName').value || "Anónimo";
+        const val = parseFloat(document.getElementById('donorValue').value) || 0;
+        const pin = document.getElementById('donorPin').value;
+
+        if(pin !== securePin) return alert("PIN incorreto!");
+
+        currentAmount += val;
+        donors.unshift({ name, amount: val, date: new Date().toLocaleDateString() });
+        
+        localStorage.setItem('total', currentAmount);
+        localStorage.setItem('donors', JSON.stringify(donors));
+        
+        updateUI();
+        document.getElementById('confirm-overlay').style.display = 'none';
+    }
+
+    function openTab(tab, btn) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+        btn.classList.add('active');
+        
+        const container = document.getElementById('mainContainer');
+        const stats = document.getElementById('statsColumn');
+        if(tab === 'comunidade') {
+            stats.style.display = 'none';
+            container.classList.add('community-mode');
+        } else {
+            stats.style.display = 'flex';
+            container.classList.remove('community-mode');
+        }
+    }
+
+    // PayPal Integration
+    paypal.HostedButtons({
+        hostedButtonId: "LB9MWNTELJU3A",
+        onApprove: function() {
+            document.getElementById('confirm-overlay').style.display = 'flex';
+        }
+    }).render("#paypal-container-LB9MWNTELJU3A");
+
+    window.onload = updateUI;
+</script>
 </body>
 </html>
